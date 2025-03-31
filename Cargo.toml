@@ -5,3 +5,5 @@ edition = "2024"
 
 [dependencies]
 eframe = "0.31.1"
+sqlx = { version = "0.8.3", features = [ "runtime-tokio", "mysql"]}
+tokio = "1.44.1"

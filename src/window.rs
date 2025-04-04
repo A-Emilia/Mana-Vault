@@ -1,14 +1,15 @@
-use eframe::egui::{self, CentralPanel};
 use super::Card;
+use eframe::egui::{self, CentralPanel};
 
-pub fn create_window(){
+pub fn create_window() {
     let options = eframe::NativeOptions::default();
     let _res = eframe::run_native(
-    "Mana Vault",
-    options,
-    Box::new(|_a| Ok(Box::<Window>::default())),
+        "Mana Vault",
+        options,
+        Box::new(|_a| Ok(Box::<Window>::default())),
     );
 }
+
 #[derive(Default)]
 pub struct Window {
     card_counter: usize,
@@ -37,23 +38,22 @@ impl eframe::App for Window {
                 ui.label(format!("Card: {}", card.name));
             }
         });
-        if self.pending_card.is_some(){
+
+        if self.pending_card.is_some() {
             egui::Window::new("testest")
                 .collapsible(false)
                 .fade_in(true)
                 .title_bar(true)
                 .show(ctx, |ui| {
                     ui.label("Card name");
-                    ui.text_edit_singleline(
-                        //&mut self.pending_card.borrow_mut().as_mut().unwrap().name);
-                        &mut self.pending_card_mut().name);
-                    ui.horizontal(|ui|{
-                        if ui.button("submit").clicked(){
+                    ui.text_edit_singleline(&mut self.pending_card_mut().name);
+                    ui.horizontal(|ui| {
+                        if ui.button("submit").clicked() {
                             if !self.pending_card_mut().name.is_empty() {
                                 self.cards.push(self.pending_card.take().unwrap());
                             }
                         }
-                        if ui.button("cancel").clicked(){
+                        if ui.button("cancel").clicked() {
                             self.pending_card = None;
                         }
                     });
@@ -61,7 +61,8 @@ impl eframe::App for Window {
         }
     }
 }
-impl Window{
+
+impl Window {
     fn pending_card_mut(&mut self) -> &mut Card {
         self.pending_card.as_mut().unwrap()
     }

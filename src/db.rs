@@ -7,7 +7,7 @@ use crate::model::Card;
 pub async fn establish_db_pool() ->  Result<Pool<MySql>, sqlx::Error>{
     MySqlPoolOptions::new()
         .max_connections(69)
-        .connect(env::var("DATABASE_URL").unwrap().as_str()).await
+        .connect(env::var("DATABASE_URL").expect("Error. Please make sure DATABASE_URL environment variable is set.").as_str()).await
     }
 
 

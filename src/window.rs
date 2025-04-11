@@ -1,4 +1,4 @@
-use super::Card;
+use crate::model::Card;
 use eframe::egui::{self, CentralPanel};
 
 pub fn create_window() {

@@ -1,11 +1,11 @@
 use sqlx::{self, mysql::MySqlPoolOptions, MySql, Pool, Row};
 
-use crate::Card;
+use crate::model::Card;
 
 pub async fn establish_db_pool() ->  Result<Pool<MySql>, sqlx::Error>{
     MySqlPoolOptions::new()
         .max_connections(69)
-        .connect("mysql://root:2435Grfr1324Fede@localhost:3306/mtg").await
+        .connect("mysql://root@localhost:6969/mtg").await
     }
 
 
@@ -16,10 +16,10 @@ fn db_test(){
         establish_db_pool().await.unwrap();
         let card: Card2 =sqlx::query_as!(
                         Card2,
-                        "SELECT c.name, s.keyruneCode
-                        FROM cards c, sets s
-                        WHERE c.name = 'Wrath of God'
-                        AND c.setCode = s.keyruneCode;").fetch_one(&establish_db_pool().await.unwrap()).await.unwrap();
+                        "SELECT c.name, c.setCode as keyruneCode
+                        FROM cards as c 
+                        WHERE c.name = 'Jodah';")
+                        .fetch_one(&establish_db_pool().await.unwrap()).await.unwrap();
         dbg!(card);
     });
     //sqlx::query_as!();

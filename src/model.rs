@@ -4,30 +4,31 @@ pub struct Card {
     pub name: String,
     pub set_code: String,
     pub text: String,
-    pub cost: Option<ManaCost>,
+    pub cost: ManaCost,
 }
 
+type ManaCost = Option<Vec<ManaPip>>;
 
 #[derive(Debug, Clone)]
-pub enum ManaColor{
+pub enum ManaColor {
     White,
     Blue,
     Black,
     Red,
     Green,
     Colorless,
-    /* Rare ones */
-    Snow,
-    Phyrexian,
-}
+  }
+  
 
 #[derive(Debug, Clone)]
-pub enum ManaCost{
+pub enum ManaPip {
     Colored(ManaColor),
     Generic(u8),
-    Variadic,
-    Either(Vec<ManaCost>),
-}
+    Phyrexian(ManaColor),
+    Hybrid(Box<(ManaPip, ManaPip)>),
+    Snow,
+    Variable,
+  }
 
 
 

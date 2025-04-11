@@ -1,3 +1,5 @@
+use std::env;
+
 use sqlx::{self, mysql::MySqlPoolOptions, MySql, Pool, Row};
 
 use crate::model::Card;
@@ -5,7 +7,7 @@ use crate::model::Card;
 pub async fn establish_db_pool() ->  Result<Pool<MySql>, sqlx::Error>{
     MySqlPoolOptions::new()
         .max_connections(69)
-        .connect("mysql://root@localhost:6969/mtg").await
+        .connect(env::var("DATABASE_URL").unwrap().as_str()).await
     }
 
 

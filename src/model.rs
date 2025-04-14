@@ -5,6 +5,9 @@ pub struct Card {
     pub set_code: String,
     pub text: String,
     pub cost: ManaCost,
+    pub supertype: Option<SuperType>,
+    pub card_type: Vec<CardType>,
+    pub subtype: Vec<String>,
 }
 
 type ManaCost = Option<Vec<ManaPip>>;
@@ -29,6 +32,31 @@ pub enum ManaPip {
     Snow,
     Variable,
   }
+
+
+  // Add more functionality to this. Maybe split Card-Types into permanet and non-permanent
+  #[derive(Debug, Clone)]
+  pub enum CardType {
+    Land,
+    Creature,
+    Artifact,
+    Enchantment,
+    Planeswalker,
+    Battle,
+    // Non-Permanent Types
+    Instant,
+    Sorcery,
+    Kindred,
+  }
+
+  #[derive(Debug, Clone)]
+  pub enum SuperType {
+    Basic,
+    Legendary,
+    // Ongoing, Archenemy cards will be cut from database
+    Snow,
+    World,
+    }
 
 
 

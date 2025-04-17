@@ -5,7 +5,7 @@ pub struct Card {
     pub set_code: String,
     pub text: String,
     pub cost: ManaCost,
-    pub supertype: Option<SuperType>,
+    pub supertype: Vec<SuperType>,
     pub card_type: Vec<CardType>,
     pub subtype: Vec<String>,
 }
@@ -53,7 +53,7 @@ pub enum ManaPip {
   pub enum SuperType {
     Basic,
     Legendary,
-    // Ongoing, Archenemy cards will be cut from database
+    // Ongoing - Archenemy cards will be cut from database
     Snow,
     World,
     }

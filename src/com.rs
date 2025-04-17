@@ -1,28 +1,45 @@
 use crate::model::Card;
 
 
-pub struct Request {
-    pub request_type: RequestType,
+pub struct MkOneRequest {
+    pub request_type: MkOneRequestType,
 }
-
-pub enum RequestType {
+pub enum MkOneRequestType {
     // Is this just for cards? How do I handle putting a card a specific place????
-    GetById(usize),
-    GetByName(String),
-    GetBySet(String),
+    Get(MkOneGetType)
+}
+pub enum MkOneGetType {
+    // The response for all Gets should be a list.
+    ById(usize),
+    ByName(String),
+    BySet(String),
 }
 
-impl Request {
+impl MkOneRequest {
     // I feel like I am just going down a rabbithole of abstraction.
     // Java did a number on me.
     pub fn get_by_id(id: usize) -> Self {
         Self {
-        request_type: RequestType::GetById(id)
+        request_type: MkOneRequestType::Get(MkOneGetType::ById(69)),
         }
     }
 }
+
+pub struct Request {
+}
+
+impl Request {
+    pub fn builder() -> RequestBuilder {
+        RequestBuilder::default()
+    }
+}
+
+
 pub struct Response;
-pub struct RequestBuilder;
+#[derive(Default)]
+pub struct RequestBuilder {
+    // Optional fields?
+}
 pub struct ResponseBuilder;
 
 

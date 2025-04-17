@@ -7,6 +7,7 @@ pub struct MkOneRequest {
 pub enum MkOneRequestType {
     // Is this just for cards? How do I handle putting a card a specific place????
     Get(MkOneGetType)
+
 }
 pub enum MkOneGetType {
     // The response for all Gets should be a list.
@@ -26,6 +27,13 @@ impl MkOneRequest {
 }
 
 pub struct Request {
+    // Could this be made an enum that represents a string? Probably just a hassle.
+    method: String,
+    url: String,
+    // JSON
+    content: String,
+
+    // A header should be added later with the user making the request.
 }
 
 impl Request {

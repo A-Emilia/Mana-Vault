@@ -1,0 +1,81 @@
+Different types of requests
+ - Get
+ - Post
+
+Requests carry a payload depending on the type of request they are.
+URL = Uniform Resource Locator
+A requests payload in this sense is the endpoint you are trying to reach, e.g. with a GET request.
+
+Is there any reason why the method is not part of the URL?
+Where do you specify in the actual Request that it is a specific type of request?
+	Do you just simply have a field in the request object that says it? That feels kind of lame.
+		I really want to use an enum here that represents a String, so when it is constructed you only have x, y, and z options.
+			This would prevent people from just inputting random stuff I guess?
+What other information should be included in a request?
+How do I make it easier to handle requests beyond just writing EVERY SINGLE OPTION down. Maybe that is just the solution.
+Like in the GET requst URL below.
+
+GET
+/card/name?q=Jodah+the+Unifier&set=DOM&foil=TRUE
+
+Specifically this section:
+name?q=Jodah+the+Unifier&set=DOM&foil=TRUE
+
+With the ampersands separating each individual option for specificity.
+
+
+
+POST
+/card/toDeck/id?q=CARD_ID
+
+
+Layer 1: Requst Wrapper
+Layer 2: Method/Operation
+Layer 3: Target type(?)
+Layer 4: Specifics 
+
+Get
+	Card
+		Id
+		Name
+		By...
+	Deck
+		By...
+Post
+	Card
+		ToCollection
+		ToDeck
+	Deck
+		NewDeck
+		DeleteDeck
+		EditDeck
+	Subcollection
+		SubcollectionRule
+
+
+
+URL = Constructed from information below
+Get
+	Card
+		card_param
+	Deck
+		deck_param
+
+URL = Target
+e.g.
+/deck/deck_id
+Post
+	Card
+		Add
+		Remove
+	Deck
+		Create
+		Delete
+	Subcollection
+
+
+Requests have:
+Method (GET, POST, PUT, etc.)
+URL (/card/name?q=Jodah+the+Unifier&set=DOM&foil=TRUE)
+Headers (Host, User-Agent, Connection, etc.)
+Content (JSON Strings, XML strings, etc.)

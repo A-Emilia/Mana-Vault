@@ -1,9 +1,8 @@
-
+use crate::com::*;
 use std::{
-    io::{prelude::*, BufReader},
+    io::{BufReader, prelude::*},
     net::{TcpListener, TcpStream},
 };
-use crate::com::*;
 
 pub fn start_client() {
     let stream = TcpStream::connect("127.0.0.1:7878").unwrap();
@@ -15,8 +14,7 @@ pub fn handle_connection(mut stream: TcpStream) {
     stream.write(b"hello").unwrap();
 }
 
-
 #[test]
-fn test_client(){
+fn test_client() {
     start_client();
 }

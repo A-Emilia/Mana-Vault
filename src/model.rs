@@ -1,4 +1,6 @@
-#[derive(Default, Debug, Clone)]
+use serde::{Serialize, Deserialize};
+
+#[derive(Default, Debug, Clone, Serialize, Deserialize)]
 pub struct Card {
     pub id: usize,
     pub name: String,
@@ -10,9 +12,25 @@ pub struct Card {
     pub subtype: Vec<String>,
 }
 
+impl Card {
+    pub fn new(
+        id: usize,
+        name: String,
+        set_code: String,
+        text: String,
+        cost: ManaCost,
+        supertype: Vec<SuperType>,
+        card_type: Vec<CardType>,
+        subtype: Vec<String>,
+    ) -> Card {
+        Card {id, name, set_code, text, cost, supertype, card_type, subtype}
+    }
+    
+}
+
 type ManaCost = Option<Vec<ManaPip>>;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum ManaColor {
     White,
     Blue,
@@ -20,10 +38,9 @@ pub enum ManaColor {
     Red,
     Green,
     Colorless,
-  }
-  
+}
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum ManaPip {
     Colored(ManaColor),
     Generic(u8),
@@ -31,12 +48,11 @@ pub enum ManaPip {
     Hybrid(Box<(ManaPip, ManaPip)>),
     Snow,
     Variable,
-  }
+}
 
-
-  // Add more functionality to this. Maybe split Card-Types into permanet and non-permanent
-  #[derive(Debug, Clone)]
-  pub enum CardType {
+// Add more functionality to this. Maybe split Card-Types into permanet and non-permanent
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum CardType {
     Land,
     Creature,
     Artifact,
@@ -47,36 +63,29 @@ pub enum ManaPip {
     Instant,
     Sorcery,
     Kindred,
-  }
+}
 
-  #[derive(Debug, Clone)]
-  pub enum SuperType {
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum SuperType {
     Basic,
     Legendary,
     // Ongoing - Archenemy cards will be cut from database
     Snow,
     World,
-    }
-
-
-
-
-
-
-
+}
 
 /* COOL SOLUTION; NOT SUPER PORTABLE:
 
- struct CostElement(u8);
- impl CostElement {
-     const WHITE     = 1 << 0;
-     const BLUE      = 1 << 1;
-     const BLACK     = 1 << 2;
-     const RED       = 1 << 3;
-     const GREEN     = 1 << 4;
-     const COLORLESS = 1 << 5;
- 
-     c = WHITE | BLUE;
-     contains_blue = c & BLUE;
- }
- */
+struct CostElement(u8);
+impl CostElement {
+    const WHITE     = 1 << 0;
+    const BLUE      = 1 << 1;
+    const BLACK     = 1 << 2;
+    const RED       = 1 << 3;
+    const GREEN     = 1 << 4;
+    const COLORLESS = 1 << 5;
+
+    c = WHITE | BLUE;
+    contains_blue = c & BLUE;
+}
+*/

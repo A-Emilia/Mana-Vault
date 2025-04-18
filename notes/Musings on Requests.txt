@@ -63,16 +63,12 @@ Get
 
 URL = Target
 e.g.
-/deck/deck_id
+/deck/deck_id/add_card
 Post
 	Card
-		Add
-		Remove
 	Deck
-		Create
-		Delete
 	Subcollection
-
+Payload is the stuff above.
 
 Requests have:
 Method (GET, POST, PUT, etc.)

@@ -1,20 +1,29 @@
-use std::env;
+use std::{fs::read_to_string, sync::LazyLock};
 
-use sqlx::{self, MySql, Pool, Row, mysql::MySqlPoolOptions};
+use sqlx::{self, mysql::MySqlPoolOptions, prelude::FromRow, MySql, Pool};
 
-use crate::model::Card;
+
+static DATABASE_URL: LazyLock<String> = LazyLock::new(|| {
+    let env = read_to_string(".env").expect("No .env found!");
+    let prefix = r#"DATABASE_URL=""#;
+    env.lines()
+        .filter(|line| line.starts_with(prefix))
+        .flat_map(|line| line.strip_prefix(prefix)?.strip_suffix('"'))
+        .nth(0)
+        .expect("Database_URL not found in .env file")
+        .to_owned()
+});
 
 pub async fn establish_db_pool() -> Result<Pool<MySql>, sqlx::Error> {
     MySqlPoolOptions::new()
         .max_connections(69)
         .connect(
-            env::var("DATABASE_URL")
-                .expect("Error. Please make sure DATABASE_URL environment variable is set.")
-                .as_str(),
+            DATABASE_URL.as_str()
         )
         .await
 }
 
+ 
 #[test]
 fn db_test() {
     let rt = tokio::runtime::Builder::new_current_thread()
@@ -24,9 +33,8 @@ fn db_test() {
         .unwrap();
     rt.block_on(async {
         establish_db_pool().await.unwrap();
-        let card: Card2 = sqlx::query_as!(
-            Card2,
-            "SELECT c.name, c.setCode as keyruneCode
+        let card: Card2 = sqlx::query_as(
+            "SELECT c.name, c.setCode as keyrune_code
                         FROM cards as c 
                         WHERE c.name = 'Jodah';"
         )
@@ -38,8 +46,14 @@ fn db_test() {
     //sqlx::query_as!();
 }
 
-#[derive(Default, Debug, Clone)]
+#[derive(Default, Debug, Clone, FromRow)]
 struct Card2 {
     pub name: Option<String>,
-    pub keyruneCode: Option<String>,
+    pub keyrune_code: Option<String>,
+}
+
+
+#[test]
+fn test_static(){
+    println!("{}", DATABASE_URL.as_str());
 }

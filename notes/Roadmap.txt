@@ -1,0 +1,7 @@
+Priority Tiers:
+ - Add Card (1), Remove Card (4), Create Collection (6), Create Deck (8), Delete Deck & Collection (14)
+ - Search Card (2), Select Card (3), Update Collection (7)
+ - Edit Card (5), Format (10)
+ - Share Deck (11), See Public Decks (12)
+ - Find & Replace (9), Sort Public Decks (13) Add Editors (15)
+

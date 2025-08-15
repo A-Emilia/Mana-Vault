@@ -17,7 +17,7 @@ pub fn start_server() {
 
 pub fn handle_connection(mut stream: TcpStream) {
     let buf_reader = BufReader::new(&stream);
-    let mut iter = buf_reader.lines().map(|result| result.unwrap());
+    let mut iter = buf_reader.lines().map(|result: Result<String, std::io::Error>| result.unwrap());
     
     let http_request: Vec<_> = iter
         .by_ref() 

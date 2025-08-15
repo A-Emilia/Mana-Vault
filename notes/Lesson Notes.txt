@@ -1,3 +1,3 @@
 In server.rs, create a card object. Whenever the server receives a GET request, that card object should be sent to the client as JSON.
 UPDATE 16:54, 18/04/25 - Card successfully sent as a JSON string. Below is the result:
-{"id":69,"name":"Jodah the Sexist","set_code":"uwu","text":"Commits sexism","cost":null,"supertype":[],"card_type":[],"subtype":[]}
+{"id":69,"name":"Jodah the Sexist","set_code":"uwu","text":"Commits sexism","cost":null,"supertype":[],"card_type":[],"subtype":[]} 

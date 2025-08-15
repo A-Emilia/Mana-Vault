@@ -1,5 +1,8 @@
 #![allow(dead_code)]
 
+use rocket::{form::Form, get, launch, post, routes, serde::json::{self, Json}, Responder};
+use serde::{Deserialize, Serialize};
+
 mod db;
 // mod server;
 mod client;
@@ -8,10 +11,41 @@ mod model;
 mod server;
 mod window;
 
-fn main() {
+static TESTCARDS: [TestCard; 3] = [make_card("Asmoranomardicadaistinaculdacar"), make_card("Jodah, Archmage Eternal"), make_card("Inalla, Archmage Ritualist")];
+
+const fn make_card(input: &'static str) -> TestCard {
+    TestCard(input, 2)
+}
+
+#[derive(Clone, Serialize, Deserialize)]
+struct TestCard (&'static str, i16);
+
+
+#[get("/")]
+fn index() -> &'static str {
+    "Hello, world!"
+}
+
+#[get("/card/<id>")]
+fn card(id: usize) -> Option<Json<TestCard>> {
+    TESTCARDS.get(id).cloned().map(Json)
+}
+
+//#[post("/card/add", data = "<json>")]
+//fn add_card(json: Json<TestCard>) -> &'static str {
+//    "uwu"
+//}
+
+#[get("/card?id=<id>")]
+fn by_id(id: usize) -> Option<Json<Card>> {
+    //TODO
+}
+
+#[launch]
+fn rocket() -> _ {
     //window::create_window();
-    println!("Hello, world!");
-    server::start_server();
+    //server::start_server();
+    rocket::build().mount("/", routes![index, card])
 }
 
 // These functions are given for hw 11/04, no need to implement them.

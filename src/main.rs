@@ -2,6 +2,7 @@
 
 use rocket::{form::Form, get, launch, post, routes, serde::json::{self, Json}, Responder};
 use serde::{Deserialize, Serialize};
+use model::Card;
 
 mod db;
 // mod server;
@@ -26,7 +27,7 @@ fn index() -> &'static str {
     "Hello, world!"
 }
 
-#[get("/card/<id>")]
+#[get("/cards/<id>")]
 fn card(id: usize) -> Option<Json<TestCard>> {
     TESTCARDS.get(id).cloned().map(Json)
 }
@@ -36,9 +37,9 @@ fn card(id: usize) -> Option<Json<TestCard>> {
 //    "uwu"
 //}
 
-#[get("/card?id=<id>")]
+#[get("/cards?<id>")]
 fn by_id(id: usize) -> Option<Json<Card>> {
-    //TODO
+    unimplemented!()
 }
 
 #[launch]

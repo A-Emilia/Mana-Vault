@@ -1,3 +1,5 @@
+mod scryfall_fetcher;
+
 use std::{fs::read_to_string, sync::LazyLock};
 
 use sqlx::{self, mysql::MySqlPoolOptions, prelude::FromRow, MySql, Pool};

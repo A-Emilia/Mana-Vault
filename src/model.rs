@@ -10,6 +10,8 @@ pub struct Card {
     pub supertype: Vec<SuperType>,
     pub card_type: Vec<CardType>,
     pub subtype: Vec<String>,
+
+    
 }
 
 impl Card {
@@ -53,24 +55,32 @@ pub enum ManaPip {
 // Add more functionality to this. Maybe split Card-Types into permanet and non-permanent
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum CardType {
-    Land,
-    Creature,
     Artifact,
+    Creature,
     Enchantment,
-    Planeswalker,
-    Battle,
-    // Non-Permanent Types
     Instant,
+    Land,
+    Planeswalker,
     Sorcery,
+    Battle,
     Kindred,
+    Conspiracy,
+    Dungeon,
+    Eaturecray,
+    Phenomenon,
+    Plane,
+    Scheme,
+    Summon,
+    Vanguard,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum SuperType {
     Basic,
     Legendary,
-    // Ongoing - Archenemy cards will be cut from database
     Snow,
+    Host,
+    Ongoing,
     World,
 }
 

@@ -1,3 +1,6 @@
+use std::str::FromStr;
+
+use rocket::futures::future::ok;
 use serde::{Serialize, Deserialize};
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize)]
@@ -42,6 +45,26 @@ pub enum ManaColor {
     Colorless,
 }
 
+impl FromStr for ManaColor {
+    type Err = ();
+    
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        use ManaColor::*;
+
+        let res = match s.trim_matches(['{', '}']) {
+            "W" => White,
+            "U" => Blue,
+            "B" => Black,
+            "R" => Red,
+            "G" => Green,
+            "C" => Colorless,
+
+            _ => return Err(())
+        };
+        Ok(res)
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum ManaPip {
     Colored(ManaColor),
@@ -50,6 +73,59 @@ pub enum ManaPip {
     Hybrid(Box<(ManaPip, ManaPip)>),
     Snow,
     Variable,
+}
+
+impl FromStr for ManaPip {
+    type Err = ();
+    
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        use ManaPip::*;
+        use ManaColor::*;
+        let s = s.trim_matches(['{', '}']);
+
+        let mut pips = s.split('/').collect::<Vec<&str>>();
+        let phyrexian = pips.pop_if(|x| *x == "P").is_some();
+        // If pips.len > 1 && phyrexian == false = hybrid
+        // If pips.len > 1 && phyrexian == true = phyrexian hybrid
+
+        fn make_pip(mana_pip: &str, is_phyrexian: bool) -> Result<ManaPip, ()> {
+
+            match mana_pip {
+                "X" => Variable,
+                "Y" => Variable,
+                "Z" => Variable,
+                "S" => Snow,
+
+                // Current progress
+                x if {x.parse::<u8>().is_ok()} => Generic(x.parse::<u8>().unwrap()),
+
+
+
+                _ => return Err(());
+            };
+            !unimplemented!()
+        }
+        
+
+        let res = match s {
+            "W" => Colored(White),
+            "U" => Colored(Blue),
+            "B" => Colored(Black),
+            "R" => Colored(Red),
+            "G" => Colored(Green),
+            "C" => Colored(Colorless),
+
+            // Rest of numbers
+            "0" => Generic(0),
+
+            "W/U" => Hybrid(Box::new((Colored(White), Colored(Blue)))),
+            "W/B" => Hybrid(Box::new((Colored(White), Colored(Black)))),
+
+
+            _ => return Err(())
+        };
+        Ok(res)
+    }
 }
 
 // Add more functionality to this. Maybe split Card-Types into permanet and non-permanent

@@ -1,8 +1,8 @@
-use std::iter;
+use std::{iter, str::FromStr, vec};
 
 use eframe::egui::TextBuffer;
 use reqwest::{self, Client, Request, Response};
-use rocket::{http::ext::IntoCollection, serde::json};
+use rocket::{http::ext::IntoCollection, serde::json::{self, to_string}};
 use sqlx::Value;
 
 use crate::model::Card;
@@ -32,30 +32,38 @@ fn put_card_in_database(card: Card) -> Result<(),()> {
 
 // list of functions for transforming data
 
-fn extract_subtypes(json: serde_json::Value) -> Vec<String> {
-  
-  let mut res = json.get("type_line")
-  .expect("No type_line field found.")
-  .to_string()
-  .trim_matches('"')
-  .split_once('—')
-  .expect("No subtypes found.")
-  .1
-  .trim()
-  .take();
+fn extract_subtypes(json: serde_json::Value) -> Option<Vec<String>> {
+  Some(
+    json.get("type_line")?
+      .as_str()?
+      .split_once('—')?.1
+      .trim()
+      .split(' ')
+      .map(str::to_string)
+      .collect::<Vec<String>>()
+  )
+}
 
-  if res.split_once(' ').is_some() {
-    return res.split(' ').map(|x| x.to_string()).collect::<Vec<String>>()
-  }
+fn extract_mana_cost(json: serde_json::Value) -> Vec<String> {
+  use regex::RegexBuilder;
 
-  vec![res]
+  let mut extracted = json.get("mana_cost")
+  .expect("uwu")
+  .as_str()
+  .expect("uwu");
+
+  let pattern = RegexBuilder::new(r"\{([WUBRGCXYSP0-9/]+)\}").build().unwrap();
+
+  let res = pattern.captures_iter(extracted);
+!unimplemented!()
+
 }
 
 mod test {
     use eframe::egui::TextBuffer;
     use serde_json::Value;
 
-    use crate::db::scryfall_fetcher::extract_subtypes;
+    use crate::db::scryfall_fetcher::{extract_mana_cost, extract_subtypes};
 
     fn get_test_data() -> Value {
         let data = r#"{

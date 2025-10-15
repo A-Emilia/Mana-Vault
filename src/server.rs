@@ -34,7 +34,8 @@ pub fn handle_connection(mut stream: TcpStream) {
     //println!("Vec index 6: {:#?}", http_request.iter().nth(6));
 
     let test_card = Card::new(
-        69,
+        "69".to_owned(),
+        "69".to_owned(),
         "Jodah the Sexist".to_owned(),
         "uwu".to_owned(),
         "Commits sexism".to_owned(),

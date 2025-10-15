@@ -1,11 +1,12 @@
 use std::str::FromStr;
 
-use rocket::futures::future::ok;
+use rocket::{form::{self, FromFormField, ValueField}, futures::future::ok, FromForm};
 use serde::{Serialize, Deserialize};
-
+/// The main struct for representing Magic: The Gathering Cards used across Mana Vault.
 #[derive(Default, Debug, Clone, Serialize, Deserialize)]
 pub struct Card {
-    pub id: usize,
+    pub id: String,
+    pub oracle_id: String,
     pub name: String,
     pub set_code: String,
     pub text: String,
@@ -13,13 +14,13 @@ pub struct Card {
     pub supertype: Vec<SuperType>,
     pub card_type: Vec<CardType>,
     pub subtype: Vec<String>,
-
-    
 }
 
+/// Constructor.
 impl Card {
     pub fn new(
-        id: usize,
+        id: String,
+        oracle_id: String,
         name: String,
         set_code: String,
         text: String,
@@ -28,14 +29,16 @@ impl Card {
         card_type: Vec<CardType>,
         subtype: Vec<String>,
     ) -> Card {
-        Card {id, name, set_code, text, cost, supertype, card_type, subtype}
+        Card {id, oracle_id, name, set_code, text, cost, supertype, card_type, subtype}
     }
-    
 }
 
-type ManaCost = Option<Vec<ManaPip>>;
+/// Wrapper type for representing the full mana cost of a `Card` struct.
+pub type ManaCost = Option<Vec<ManaPip>>;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+/// Enum for representing each of Magic: The Gatherings five colors along with Colorless.
+/// This enum should never be used on its own, but should rather be wrapped in a `ManaPip`.
+#[derive(Debug, Clone, Serialize, Deserialize, FromFormField)]
 pub enum ManaColor {
     White,
     Blue,
@@ -65,6 +68,7 @@ impl FromStr for ManaColor {
     }
 }
 
+/// Enum representing an individual pip of Magic: The Gathering mana.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum ManaPip {
     Colored(ManaColor),
@@ -73,6 +77,13 @@ pub enum ManaPip {
     Hybrid(Box<(ManaPip, ManaPip)>),
     Snow,
     Variable,
+}
+
+#[rocket::async_trait]
+impl<'r> FromFormField<'r> for ManaPip {
+    fn from_value(field: ValueField<'r>) -> form::Result<'r, Self> {
+        !unimplemented!()
+    }
 }
 
 impl FromStr for ManaPip {
@@ -85,7 +96,7 @@ impl FromStr for ManaPip {
 
         let mut pips = s.split('/').collect::<Vec<&str>>();
         let phyrexian = pips.pop_if(|x| *x == "P").is_some();
-        // If pips.len > 1 && phyrexian == false = hybrid
+        // If pips.len > 1 && phyrexian == false = hybrid 
         // If pips.len > 1 && phyrexian == true = phyrexian hybrid
 
         fn make_pip(mana_pip: &str, is_phyrexian: bool) -> Result<ManaPip, ()> {
@@ -96,12 +107,9 @@ impl FromStr for ManaPip {
                 "Z" => Variable,
                 "S" => Snow,
 
-                // Current progress
+                "W"|"U"|"B"|"R"|"G" => Colored(ManaColor::from_str(mana_pip)?),
                 x if {x.parse::<u8>().is_ok()} => Generic(x.parse::<u8>().unwrap()),
-
-
-
-                _ => return Err(());
+                _ => return Err(()),
             };
             !unimplemented!()
         }
@@ -148,6 +156,33 @@ pub enum CardType {
     Scheme,
     Summon,
     Vanguard,
+}
+
+impl FromStr for CardType {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "Artifact" => Ok(CardType::Artifact),
+            "Creature" => Ok(CardType::Creature),
+            "Enchantment" => Ok(CardType::Enchantment),
+            "Instant" => Ok(CardType::Instant),
+            "Land" => Ok(CardType::Land),
+            "Planeswalker" => Ok(CardType::Planeswalker),
+            "Sorcery" => Ok(CardType::Sorcery),
+            "Battle" => Ok(CardType::Battle),
+            "Kindred" => Ok(CardType::Kindred),
+            "Conspiracy" => Ok(CardType::Conspiracy),
+            "Dungeon" => Ok(CardType::Dungeon),
+            "Eaturecray" => Ok(CardType::Eaturecray),
+            "Phenomenon" => Ok(CardType::Phenomenon),
+            "Plane" => Ok(CardType::Plane),
+            "Scheme" => Ok(CardType::Scheme),
+            "Summon" => Ok(CardType::Summon),
+            "Vanguard" => Ok(CardType::Vanguard),
+            _ => Err(()),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

@@ -1,8 +1,9 @@
 #![allow(dead_code)]
 
-use rocket::{form::Form, get, launch, post, routes, serde::json::{self, Json}, Responder};
+use rocket::{form::Form, get, launch, post, routes, serde::json::{self, Json}, FromForm, Responder};
 use serde::{Deserialize, Serialize};
 use model::Card;
+use model::ManaCost;
 
 mod db;
 // mod server;
@@ -27,9 +28,23 @@ fn index() -> &'static str {
     "Hello, world!"
 }
 
-#[get("/cards/<id>")]
-fn card(id: usize) -> Option<Json<TestCard>> {
+#[get("/test_cards/<id>")]
+fn test_card(id: usize) -> Option<Json<TestCard>> {
     TESTCARDS.get(id).cloned().map(Json)
+}
+
+#[get("/cards?<id>&<oracle_id>&<name>&<set_code>&<text>")]
+fn card(
+    id: Option<&'_ str>,
+    oracle_id: Option<&'_ str>,
+    name: Option<&'_ str>,
+    set_code: Option<&'_ str>,
+    text: Option<&'_ str>,
+    //cost: Option<ManaCost>,
+
+
+) -> Option<Json<Card>> {
+    !unimplemented!()
 }
 
 //#[post("/card/add", data = "<json>")]
@@ -46,7 +61,7 @@ fn by_id(id: usize) -> Option<Json<Card>> {
 fn rocket() -> _ {
     //window::create_window();
     //server::start_server();
-    rocket::build().mount("/", routes![index, card])
+    rocket::build().mount("/", routes![index, test_card, card])
 }
 
 // These functions are given for hw 11/04, no need to implement them.

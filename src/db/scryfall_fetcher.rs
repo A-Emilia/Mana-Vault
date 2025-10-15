@@ -1,9 +1,46 @@
+
+//! Utility for transforming Scryfall Card JSON objects into Card objects used by Mana Vault.
+//! | Scryfall JSON Field         | Mana Vault Card Field       |
+//! |:----------------------------|:----------------------------|
+//! | id                          | `id: String`                |
+//! | oracle_id                   | `oracle_id: String`         |
+//! | name                        | `name: String`              |
+//! | set                         | `set_code: String`          |
+//! | oracle_text                 | `text: String`              |
+//! | mana_cost                   | `cost: ManaCost`            |
+//! | type_line                   | `supertype: Vec<SuperType>` |
+//! | type_line                   | `card_type: Vec<CardType>`  |
+//! | type_line                   | `subtype: Vec<String>`      |
+//! 
+
 use std::{iter, str::FromStr, vec};
 
 use eframe::egui::TextBuffer;
+use regex::{Regex, RegexBuilder};
 use reqwest::{self, Client, Request, Response};
 use rocket::{http::ext::IntoCollection, serde::json::{self, to_string}};
 use sqlx::Value;
+
+ /* Scryfall Json Fields Needed.
+ card
+  oracle_id     ->      general_id
+  name          ->      name
+  oracle_text   ->      text
+
+ card_printing
+  id            ->      id
+  oracle_id     ->      card_id
+  image_uris    ->      image_url
+  rarity        ->      rarity
+
+ card_mana_cost
+  oracle_id     ->      card_id
+  mana_cost     ->      cost_id
+      Cost id is 
+  
+  
+  
+  */
 
 use crate::model::Card;
 
@@ -32,6 +69,14 @@ fn put_card_in_database(card: Card) -> Result<(),()> {
 
 // list of functions for transforming data
 
+/// Takes in a `serde_json::Value` enum of a Scryfall JSON Magic: The Gathering card and extracts the subtypes as `Vec<String>`.
+/// ```
+/// # use serde_json::Value;
+/// let data = r#"{"type_line": "Legendary Creature — Human Wizard"}"#;
+/// let json: Value = serde_json::from_str(data).unwrap();
+/// let res = extract_subtypes(json).unwrap();
+/// assert_eq!(res, ["Human", "Wizard"]);
+/// ```
 fn extract_subtypes(json: serde_json::Value) -> Option<Vec<String>> {
   Some(
     json.get("type_line")?
@@ -44,26 +89,70 @@ fn extract_subtypes(json: serde_json::Value) -> Option<Vec<String>> {
   )
 }
 
-fn extract_mana_cost(json: serde_json::Value) -> Vec<String> {
-  use regex::RegexBuilder;
+fn extract_types(json: serde_json::Value) -> Option<Vec<String>> {
+  let pattern = RegexBuilder::new(r"(?x)
+  (\bArtifact\b)
+  |(\bCreature\b)
+  |(\bEnchantment\b)
+  |(\bInstant\b)
+  |(\bLand\b)
+  |(\bPlaneswalker\b)
+  |(\bSorcery\b)
+  |(\bBattle\b)
+  |(\bKindred\b)
+  |(\bConspiracy\b)
+  |(\bDungeon\b)
+  |(\bEaturecray\b)
+  |(\bPhenomenon\b)
+  |(\bPlane\b)
+  |(\bScheme\b)
+  |(\bSummon\b)
+  |(\bVanguard\b)"
+  ).build().unwrap();
 
-  let mut extracted = json.get("mana_cost")
-  .expect("uwu")
-  .as_str()
-  .expect("uwu");
+  Some(
+    pattern.captures_iter(json.get("type_line")?.as_str()?)
+      .map(|x| x.extract())
+      .map(|(_, [val])| val.to_string())
+      .collect::<Vec<String>>()
+  )
+}
+
+fn extract_supertypes(json: serde_json::Value) -> Option<Vec<String>> {
+  let pattern = RegexBuilder::new(r"(?x)
+  (\bBasic\b)
+  |(\bLegendary\b)
+  |(\bSnow\b)
+  |(\bHost\b)
+  |(\bOngoing\b)
+  |(\bWorld\b)"
+  ).build().unwrap();
+
+  Some(
+    pattern.captures_iter(json.get("type_line")?.as_str()?)
+      .map(|x| x.extract())
+      .map(|(_, [val])| val.to_string())
+      .collect::<Vec<String>>()
+  )
+}
+
+fn extract_mana_cost(json: serde_json::Value) -> Option<Vec<String>> {
 
   let pattern = RegexBuilder::new(r"\{([WUBRGCXYSP0-9/]+)\}").build().unwrap();
 
-  let res = pattern.captures_iter(extracted);
-!unimplemented!()
-
+  Some(
+    pattern.captures_iter(json.get("mana_cost")?.as_str()?)
+      .map(|x| x.extract())
+      .map(|(_, [val])| val.to_string())
+      .collect::<Vec<String>>()
+  )
 }
 
 mod test {
     use eframe::egui::TextBuffer;
     use serde_json::Value;
 
-    use crate::db::scryfall_fetcher::{extract_mana_cost, extract_subtypes};
+    use crate::db::scryfall_fetcher::{extract_mana_cost, extract_subtypes, extract_types, extract_supertypes};
 
     fn get_test_data() -> Value {
         let data = r#"{
@@ -91,9 +180,9 @@ mod test {
     "art_crop": "https://cards.scryfall.io/art_crop/front/f/f/fff58d35-eb23-47ee-9b8c-6919ad1a413a.jpg?1562825095",
     "border_crop": "https://cards.scryfall.io/border_crop/front/f/f/fff58d35-eb23-47ee-9b8c-6919ad1a413a.jpg?1562825095"
   },
-  "mana_cost": "{1}{G}",
+  "mana_cost": "{1}{G/P}",
   "cmc": 2.0,
-  "type_line": "Creature — Cat Snake",
+  "type_line": "Legendary Artifact Creature — Cat Snake",
   "oracle_text": "Islandwalk (This creature can't be blocked as long as defending player controls an Island.)\n{G}: Regenerate this creature.",
   "power": "2",
   "toughness": "1",
@@ -201,7 +290,7 @@ return v
     fn test() {
         let data: Value = get_test_data();
 
-        let res = extract_subtypes(data);
+        let res = extract_subtypes(data).unwrap();
         print!("Result: {:?}", res);
 
     }

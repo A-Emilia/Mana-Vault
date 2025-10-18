@@ -3,7 +3,7 @@ use std::str::FromStr;
 use rocket::{form::{self, FromFormField, ValueField}, futures::future::ok, FromForm};
 use serde::{Serialize, Deserialize};
 /// The main struct for representing Magic: The Gathering Cards used across Mana Vault.
-#[derive(Default, Debug, Clone, Serialize, Deserialize)]
+#[derive(Default, Debug, Clone, Serialize, Deserialize, FromForm)]
 pub struct Card {
     pub id: String,
     pub oracle_id: String,
@@ -82,7 +82,7 @@ pub enum ManaPip {
 #[rocket::async_trait]
 impl<'r> FromFormField<'r> for ManaPip {
     fn from_value(field: ValueField<'r>) -> form::Result<'r, Self> {
-        !unimplemented!()
+        ManaPip::from_str(field.value).map_err(|_| form::Error::validation("Unable to parse mana pip.").into())
     }
 }
 
@@ -91,48 +91,31 @@ impl FromStr for ManaPip {
     
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         use ManaPip::*;
-        use ManaColor::*;
-        let s = s.trim_matches(['{', '}']);
 
-        let mut pips = s.split('/').collect::<Vec<&str>>();
+        let mut pips = s.trim_matches(['{', '}']).split('/').collect::<Vec<&str>>();
         let phyrexian = pips.pop_if(|x| *x == "P").is_some();
-        // If pips.len > 1 && phyrexian == false = hybrid 
-        // If pips.len > 1 && phyrexian == true = phyrexian hybrid
+
+        match pips.len() {
+            1 => return make_pip(pips[0], phyrexian),
+            2 => return {
+                let x = make_pip(pips[0], phyrexian)?;
+                let y = make_pip(pips[1], phyrexian)?;
+                Ok(Hybrid(Box::new((x,y))))
+            },
+            _ => return Err(()),
+        }
 
         fn make_pip(mana_pip: &str, is_phyrexian: bool) -> Result<ManaPip, ()> {
-
             match mana_pip {
-                "X" => Variable,
-                "Y" => Variable,
-                "Z" => Variable,
-                "S" => Snow,
+                "X"|"Y"|"Z" => return Ok(Variable),
+                "S" => return Ok(Snow),
 
-                "W"|"U"|"B"|"R"|"G" => Colored(ManaColor::from_str(mana_pip)?),
-                x if {x.parse::<u8>().is_ok()} => Generic(x.parse::<u8>().unwrap()),
+                "W"|"U"|"B"|"R"|"G" if !is_phyrexian => return Ok(Colored(ManaColor::from_str(mana_pip)?)),
+                "W"|"U"|"B"|"R"|"G" if is_phyrexian => return Ok(Phyrexian(ManaColor::from_str(mana_pip)?)),
+                x if {x.parse::<u8>().is_ok()} => return Ok(Generic(x.parse::<u8>().unwrap())),
                 _ => return Err(()),
             };
-            !unimplemented!()
         }
-        
-
-        let res = match s {
-            "W" => Colored(White),
-            "U" => Colored(Blue),
-            "B" => Colored(Black),
-            "R" => Colored(Red),
-            "G" => Colored(Green),
-            "C" => Colored(Colorless),
-
-            // Rest of numbers
-            "0" => Generic(0),
-
-            "W/U" => Hybrid(Box::new((Colored(White), Colored(Blue)))),
-            "W/B" => Hybrid(Box::new((Colored(White), Colored(Black)))),
-
-
-            _ => return Err(())
-        };
-        Ok(res)
     }
 }
 
@@ -156,6 +139,13 @@ pub enum CardType {
     Scheme,
     Summon,
     Vanguard,
+}
+
+#[rocket::async_trait]
+impl<'r> FromFormField<'r> for CardType {
+    fn from_value(field: ValueField<'r>) -> form::Result<'r, Self> {
+        CardType::from_str(field.value).map_err(|_| form::Error::validation("Unable to parse card type.").into())
+    }
 }
 
 impl FromStr for CardType {
@@ -193,6 +183,29 @@ pub enum SuperType {
     Host,
     Ongoing,
     World,
+}
+
+#[rocket::async_trait]
+impl<'r> FromFormField<'r> for SuperType {
+    fn from_value(field: ValueField<'r>) -> form::Result<'r, Self> {
+        SuperType::from_str(field.value).map_err(|_| form::Error::validation("Unable to parse super type.").into())
+    }
+}
+
+impl FromStr for SuperType {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "Basic" => Ok(SuperType::Basic),
+            "Legendary" => Ok(SuperType::Legendary),
+            "Snow" => Ok(SuperType::Snow),
+            "Host" => Ok(SuperType::Host),
+            "Ongoing" => Ok(SuperType::Ongoing),
+            "World" => Ok(SuperType::World),
+            _ => Err(()),
+        }
+    }
 }
 
 /* COOL SOLUTION; NOT SUPER PORTABLE:

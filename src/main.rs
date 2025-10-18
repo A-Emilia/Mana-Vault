@@ -5,6 +5,8 @@ use serde::{Deserialize, Serialize};
 use model::Card;
 use model::ManaCost;
 
+use crate::model::{CardType, SuperType};
+
 mod db;
 // mod server;
 mod client;
@@ -12,6 +14,19 @@ mod com;
 mod model;
 mod server;
 mod window;
+
+#[derive(Default, Debug, Clone, Serialize, Deserialize, FromForm)]
+struct CardSearch {
+    id: Option<String>,
+    oracle_id: Option<String>,
+    name: Option<String>,
+    set_code: Option<String>,
+    text: Option<String>,
+    cost: Option<ManaCost>,
+    supertype: Option<Vec<SuperType>>,
+    card_type: Option<Vec<CardType>>,
+    subtype: Option<Vec<String>>,
+}
 
 static TESTCARDS: [TestCard; 3] = [make_card("Asmoranomardicadaistinaculdacar"), make_card("Jodah, Archmage Eternal"), make_card("Inalla, Archmage Ritualist")];
 
@@ -33,17 +48,8 @@ fn test_card(id: usize) -> Option<Json<TestCard>> {
     TESTCARDS.get(id).cloned().map(Json)
 }
 
-#[get("/cards?<id>&<oracle_id>&<name>&<set_code>&<text>")]
-fn card(
-    id: Option<&'_ str>,
-    oracle_id: Option<&'_ str>,
-    name: Option<&'_ str>,
-    set_code: Option<&'_ str>,
-    text: Option<&'_ str>,
-    //cost: Option<ManaCost>,
-
-
-) -> Option<Json<Card>> {
+#[get("/cards?<q..>")]
+fn card(q: CardSearch) -> Option<Json<Card>> {
     !unimplemented!()
 }
 

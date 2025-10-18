@@ -149,10 +149,12 @@ fn extract_mana_cost(json: serde_json::Value) -> Option<Vec<String>> {
 }
 
 mod test {
+    use std::str::FromStr;
+
     use eframe::egui::TextBuffer;
     use serde_json::Value;
 
-    use crate::db::scryfall_fetcher::{extract_mana_cost, extract_subtypes, extract_types, extract_supertypes};
+    use crate::{db::scryfall_fetcher::{extract_mana_cost, extract_subtypes, extract_supertypes, extract_types}, model::ManaPip};
 
     fn get_test_data() -> Value {
         let data = r#"{
@@ -180,7 +182,7 @@ mod test {
     "art_crop": "https://cards.scryfall.io/art_crop/front/f/f/fff58d35-eb23-47ee-9b8c-6919ad1a413a.jpg?1562825095",
     "border_crop": "https://cards.scryfall.io/border_crop/front/f/f/fff58d35-eb23-47ee-9b8c-6919ad1a413a.jpg?1562825095"
   },
-  "mana_cost": "{1}{G/P}",
+  "mana_cost": "{1}{G/P}{W/U/P}{W/U}",
   "cmc": 2.0,
   "type_line": "Legendary Artifact Creature — Cat Snake",
   "oracle_text": "Islandwalk (This creature can't be blocked as long as defending player controls an Island.)\n{G}: Regenerate this creature.",
@@ -290,8 +292,10 @@ return v
     fn test() {
         let data: Value = get_test_data();
 
-        let res = extract_subtypes(data).unwrap();
+        let res = extract_mana_cost(data).unwrap();
         print!("Result: {:?}", res);
 
+        let res2 = res.iter().map(String::as_str).map(ManaPip::from_str).collect::<Vec<Result<ManaPip, ()>>>();
+        print!("\nResult 2: {:?}", res2);
     }
 }

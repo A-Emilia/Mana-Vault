@@ -140,7 +140,26 @@ pub enum CardType {
     Summon,
     Vanguard,
 }
-
+impl CardType{
+    const REGEX_PATTERN: &str = r"(?x)
+  (\bArtifact\b)
+  |(\bCreature\b)
+  |(\bEnchantment\b)
+  |(\bInstant\b)
+  |(\bLand\b)
+  |(\bPlaneswalker\b)
+  |(\bSorcery\b)
+  |(\bBattle\b)
+  |(\bKindred\b)
+  |(\bConspiracy\b)
+  |(\bDungeon\b)
+  |(\bEaturecray\b)
+  |(\bPhenomenon\b)
+  |(\bPlane\b)
+  |(\bScheme\b)
+  |(\bSummon\b)
+  |(\bVanguard\b)";
+}
 #[rocket::async_trait]
 impl<'r> FromFormField<'r> for CardType {
     fn from_value(field: ValueField<'r>) -> form::Result<'r, Self> {

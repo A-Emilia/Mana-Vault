@@ -28,6 +28,12 @@ struct CardSearch {
     subtype: Option<Vec<String>>,
 }
 
+#[get("/cards?<q..>")]
+fn card(q: CardSearch) -> Option<Json<Card>> {
+    !unimplemented!()
+}
+
+
 static TESTCARDS: [TestCard; 3] = [make_card("Asmoranomardicadaistinaculdacar"), make_card("Jodah, Archmage Eternal"), make_card("Inalla, Archmage Ritualist")];
 
 const fn make_card(input: &'static str) -> TestCard {
@@ -48,11 +54,6 @@ fn test_card(id: usize) -> Option<Json<TestCard>> {
     TESTCARDS.get(id).cloned().map(Json)
 }
 
-#[get("/cards?<q..>")]
-fn card(q: CardSearch) -> Option<Json<Card>> {
-    !unimplemented!()
-}
-
 //#[post("/card/add", data = "<json>")]
 //fn add_card(json: Json<TestCard>) -> &'static str {
 //    "uwu"
@@ -67,7 +68,8 @@ fn by_id(id: usize) -> Option<Json<Card>> {
 fn rocket() -> _ {
     //window::create_window();
     //server::start_server();
-    rocket::build().mount("/", routes![index, test_card, card])
+    rocket::build()
+    .mount("/", routes![index, test_card, card])
 }
 
 // These functions are given for hw 11/04, no need to implement them.

@@ -2,18 +2,12 @@
 
 use rocket::{form::Form, get, launch, post, routes, serde::json::{self, Json}, FromForm, Responder};
 use serde::{Deserialize, Serialize};
-use model::Card;
-use model::ManaCost;
-
-use crate::model::{CardType, SuperType};
+use mvtg_card::{Card, ManaCost, CardType, SuperType };
 
 mod db;
 // mod server;
-mod client;
 mod com;
-mod model;
 mod server;
-mod window;
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize, FromForm)]
 struct CardSearch {
@@ -73,9 +67,9 @@ fn rocket() -> _ {
 }
 
 // These functions are given for hw 11/04, no need to implement them.
-fn push_card(input: model::Card) {
+fn push_card(input: mvtg_card::Card) {
     todo!()
 }
-fn get_card(/* Get creative with Arguments */) -> model::Card {
+fn get_card(/* Get creative with Arguments */) -> mvtg_card::Card {
     todo!()
 }

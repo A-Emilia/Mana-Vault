@@ -1,4 +1,3 @@
-use crate::model::Card;
 use core::fmt;
 use request::Request;
 use std::fmt::write;

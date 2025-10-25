@@ -1,3 +1,9 @@
 /target
+/mana_vault_server/target
+/mv_integrated_client/target
+/mvtg_card/target
 cargo.lock
+/mana_vault_server/cargo.lock
+/mv_integrated_client/cargo.lock
+/mvtg_card/cargo.lock
 .env

@@ -1,0 +1,8 @@
+[package]
+name = "mv_integrated_client"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+eframe = "0.33.0"
+mvtg_card = { path = "../mvtg_card" }

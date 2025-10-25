@@ -42,7 +42,7 @@ use sqlx::Value;
   
   */
 
-use crate::model::Card;
+use mvtg_card::{Card, ManaCost};
 
 pub fn try_update() -> Result<(),()> {
     // OK scenario is final. Error scenario TBA.
@@ -153,8 +153,9 @@ mod test {
 
     use eframe::egui::TextBuffer;
     use serde_json::Value;
+    use mvtg_card::{mana_cost::ManaPip, ManaCost};
 
-    use crate::{db::scryfall_fetcher::{extract_mana_cost, extract_subtypes, extract_supertypes, extract_types}, model::ManaPip};
+    use crate::{db::scryfall_fetcher::{extract_mana_cost, extract_subtypes, extract_supertypes, extract_types}};
 
     fn get_test_data() -> Value {
         let data = r#"{
